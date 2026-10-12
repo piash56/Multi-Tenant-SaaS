@@ -1,0 +1,26 @@
+{
+  "name": "@saas/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --exclude dist/**"
+  },
+  "dependencies": {
+    "@saas/config": "workspace:*",
+    "@saas/shared-types": "workspace:*",
+    "@saas/validation": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "5.0.4"
+  }
+}

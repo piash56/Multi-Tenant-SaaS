@@ -1,0 +1,42 @@
+{
+  "name": "multi-tenant-saas",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.34.7",
+  "engines": {
+    "node": ">=22.13.0 <23",
+    "pnpm": "10.34.7"
+  },
+  "scripts": {
+    "postinstall": "pnpm shared:build",
+    "shared:build": "pnpm --filter @saas/shared-types --filter @saas/validation --filter @saas/config --filter @saas/api-client build",
+    "build": "pnpm -r --if-present build",
+    "dev": "pnpm --parallel --filter @saas/web --filter @saas/api --filter @saas/worker dev",
+    "dev:web": "pnpm --filter @saas/web dev",
+    "dev:api": "pnpm --filter @saas/api dev",
+    "dev:worker": "pnpm --filter @saas/worker dev",
+    "dev:mobile": "pnpm --filter @saas/mobile start",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "test:e2e": "pnpm --filter @saas/api test:integration",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:generate": "pnpm --filter @saas/api prisma:generate",
+    "db:validate": "pnpm --filter @saas/api prisma:validate",
+    "db:connect": "pnpm --filter @saas/api prisma:connect",
+    "infra:up": "docker compose up -d --wait",
+    "infra:down": "docker compose down",
+    "infra:status": "docker compose ps",
+    "healthcheck": "node scripts/healthcheck.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "22.17.1",
+    "eslint": "9.39.5",
+    "globals": "17.13.0",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.1"
+  }
+}

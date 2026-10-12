@@ -1,0 +1,128 @@
+:root {
+  color-scheme: light;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  background: #f4f7fb;
+  color: #14213d;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+a {
+  color: inherit;
+}
+.siteHeader {
+  min-height: 4.5rem;
+  padding: 1rem clamp(1.25rem, 5vw, 5rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-bottom: 1px solid #dce4ef;
+}
+.siteHeader nav {
+  display: flex;
+  gap: 1rem;
+}
+.brand {
+  font-weight: 800;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+.pageShell {
+  width: min(72rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 7rem) 0;
+}
+.hero,
+.statusCard {
+  max-width: 52rem;
+}
+.eyebrow {
+  color: #3157d5;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.78rem;
+}
+h1 {
+  margin: 0.4rem 0 1.25rem;
+  font-size: clamp(2.4rem, 7vw, 5.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+.statusCard h1 {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+}
+.lede {
+  max-width: 43rem;
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  line-height: 1.6;
+  color: #506078;
+}
+.actions {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.primaryAction,
+button {
+  border: 0;
+  border-radius: 0.7rem;
+  background: #2347c5;
+  color: white;
+  padding: 0.85rem 1.15rem;
+  text-decoration: none;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.muted {
+  color: #69768a;
+  font-size: 0.92rem;
+}
+.healthGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 1rem;
+}
+.healthGrid div,
+.errorPanel {
+  background: white;
+  border: 1px solid #dce4ef;
+  border-radius: 0.9rem;
+  padding: 1.2rem;
+  box-shadow: 0 10px 35px rgb(20 33 61 / 7%);
+}
+.healthGrid dt {
+  color: #69768a;
+  font-size: 0.85rem;
+}
+.healthGrid dd {
+  margin: 0.35rem 0 0;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+.errorPanel {
+  border-left: 0.35rem solid #bb2b3b;
+}
+@media (max-width: 34rem) {
+  .siteHeader {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

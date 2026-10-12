@@ -1,25 +1,27 @@
-# Dependencies
+# Dependencies and generated output
 node_modules/
 .pnpm-store/
+dist/
+build/
+coverage/
+.next/
+.expo/
+.expo-shared/
+web-build/
+*.tsbuildinfo
 
-# Environment secrets
+# Environment files (examples remain tracked)
 .env
 .env.*
 !.env.example
 !.env.*.example
 
-# Build output
-.next/
-dist/
-build/
-coverage/
-.expo/
-.expo-shared/
+# Prisma generated client
+apps/api/src/generated/
 
-# Local files
+# Logs and operating-system/editor state
 *.log
 .DS_Store
 Thumbs.db
-
-# IDE
 .idea/
+.vscode/settings.json

@@ -1,0 +1,11 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Milestone 2 intentionally has no business models or migrations.
+// Milestone 3 will introduce the approved multi-tenant schema.

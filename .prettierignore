@@ -1,0 +1,11 @@
+node_modules
+pnpm-lock.yaml
+dist
+coverage
+.next
+.expo
+apps/api/src/generated
+AGENTS.md
+docs/architecture
+docs/saas-roadmap.md
+docs/setup-checklist.md
