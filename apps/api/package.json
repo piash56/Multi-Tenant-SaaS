@@ -11,9 +11,13 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --exclude \"test/**/*.integration.test.ts\"",
     "test:integration": "vitest run test/health.integration.test.ts --maxWorkers=1 --no-file-parallelism",
+    "test:database": "node scripts/run-database-tests.mjs",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
-    "prisma:connect": "tsx scripts/check-database.ts"
+    "prisma:connect": "tsx scripts/check-database.ts",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:migrate:status": "prisma migrate status",
+    "prisma:seed": "prisma db seed"
   },
   "dependencies": {
     "@nestjs/common": "12.1.3",
