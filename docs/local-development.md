@@ -98,6 +98,12 @@ pnpm db:connect
 ## Troubleshooting
 
 - **PowerShell blocks pnpm.ps1:** use Git Bash or `pnpm.cmd`.
+- **API reports `EADDRINUSE` for port 3001:** another process is already listening on the API
+  port, often an earlier `pnpm dev` session. Find it with
+  `Get-NetTCPConnection -LocalPort 3001 -State Listen`, inspect the returned PID with
+  `Get-CimInstance Win32_Process -Filter "ProcessId = <PID>"`, and stop that process only after
+  confirming it belongs to the old development session. Keep port 3001 unless you also update the
+  web and mobile API URLs.
 - **Port 5432 conflict/old container:** this project defaults to 5433; never reuse the old container.
 - **Readiness is 503:** run `pnpm infra:status`, inspect `docker compose logs postgres redis`, and
   compare API URLs/credentials with the examples.

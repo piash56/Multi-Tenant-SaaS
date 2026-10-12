@@ -12,6 +12,11 @@ describe("health API", () => {
       "postgresql://saas_app:local-development-only@localhost:5433/saas_dev";
     process.env.REDIS_URL ??= "redis://localhost:6379";
     process.env.CORS_ORIGINS ??= "http://localhost:3000";
+    process.env.AUTH_JWT_SECRET ??= "test-only-auth-secret-at-least-32-characters";
+    process.env.AUTH_JWT_ISSUER ??= "unified-inbox-api";
+    process.env.AUTH_JWT_AUDIENCE ??= "unified-inbox-clients";
+    process.env.AUTH_COOKIE_SECURE ??= "false";
+    process.env.SWAGGER_ENABLED ??= "false";
     const { createApplication } = await import("../src/bootstrap.js");
     app = await createApplication();
     await app.init();

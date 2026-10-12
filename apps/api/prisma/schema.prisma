@@ -161,9 +161,48 @@ model User {
   memberships     Membership[]
   invitations     Invitation[]
   auditLogs       AuditLog[]
+  authSessions    AuthSession[]
 
   @@index([status])
   @@map("users")
+}
+
+model AuthSession {
+  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId               String             @map("user_id") @db.Uuid
+  familyId             String             @map("family_id") @db.Uuid
+  accessVersion        Int                @default(1) @map("access_version")
+  authenticatedAt      DateTime           @default(now()) @map("authenticated_at") @db.Timestamptz(6)
+  lastUsedAt           DateTime           @default(now()) @map("last_used_at") @db.Timestamptz(6)
+  expiresAt            DateTime           @map("expires_at") @db.Timestamptz(6)
+  revokedAt            DateTime?          @map("revoked_at") @db.Timestamptz(6)
+  revokeReason         String?            @map("revoke_reason")
+  userAgent            String?            @map("user_agent")
+  ipAddress            String?            @map("ip_address") @db.Inet
+  createdAt            DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+  refreshTokens        AuthRefreshToken[]
+
+  @@unique([familyId])
+  @@index([userId, revokedAt, expiresAt])
+  @@map("auth_sessions")
+}
+
+model AuthRefreshToken {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionId   String      @map("session_id") @db.Uuid
+  tokenHash   String      @unique @map("token_hash")
+  sequence    Int
+  expiresAt   DateTime    @map("expires_at") @db.Timestamptz(6)
+  usedAt      DateTime?   @map("used_at") @db.Timestamptz(6)
+  revokedAt   DateTime?   @map("revoked_at") @db.Timestamptz(6)
+  replacedById String?    @map("replaced_by_id") @db.Uuid
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  session     AuthSession @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+
+  @@unique([sessionId, sequence])
+  @@index([sessionId, revokedAt, expiresAt])
+  @@map("auth_refresh_tokens")
 }
 
 model Organization {

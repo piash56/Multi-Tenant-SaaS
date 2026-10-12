@@ -106,6 +106,40 @@ describe("Milestone 3 database", () => {
     expect(tables.rowCount).toBe(5);
   });
 
+  it("enforces authentication session token uniqueness and user ownership", async () => {
+    const orgId = await createOrganization("AuthSession");
+    const member = await createMembership(orgId, "Session user");
+    const sessionId = randomUUID();
+    await query(
+      `INSERT INTO auth_sessions (id, user_id, family_id, expires_at)
+       VALUES ($1, $2, $3, now() + interval '30 days')`,
+      [sessionId, member.userId, randomUUID()],
+    );
+    await query(
+      `INSERT INTO auth_refresh_tokens (session_id, token_hash, sequence, expires_at)
+       VALUES ($1, 'synthetic-token-hash', 1, now() + interval '30 days')`,
+      [sessionId],
+    );
+    await expectSqlState(
+      () =>
+        query(
+          `INSERT INTO auth_refresh_tokens (session_id, token_hash, sequence, expires_at)
+           VALUES ($1, 'synthetic-token-hash', 2, now() + interval '30 days')`,
+          [sessionId],
+        ),
+      "23505",
+    );
+    await expectSqlState(
+      () =>
+        query(
+          `INSERT INTO auth_sessions (user_id, family_id, expires_at)
+           VALUES ($1, $2, now() + interval '30 days')`,
+          [randomUUID(), randomUUID()],
+        ),
+      "23503",
+    );
+  });
+
   it("enforces organization membership uniqueness", async () => {
     const orgId = await createOrganization("Membership");
     const member = await createMembership(orgId, "One");

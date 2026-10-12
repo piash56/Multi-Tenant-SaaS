@@ -5,6 +5,7 @@ const valid = {
   DATABASE_URL: "postgresql://user:pass@localhost:5433/db",
   REDIS_URL: "redis://localhost:6379",
   CORS_ORIGINS: "http://localhost:3000",
+  AUTH_JWT_SECRET: "test-only-auth-secret-at-least-32-characters",
 };
 
 describe("validateEnvironment", () => {

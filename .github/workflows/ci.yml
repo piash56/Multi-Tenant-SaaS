@@ -40,6 +40,11 @@ jobs:
       DATABASE_URL: postgresql://saas_test:ci-only-password@localhost:5432/saas_test?schema=public
       REDIS_URL: redis://localhost:6379
       CORS_ORIGINS: http://localhost:3000
+      AUTH_JWT_SECRET: ci-only-auth-secret-at-least-32-characters-long
+      AUTH_JWT_ISSUER: unified-inbox-api
+      AUTH_JWT_AUDIENCE: unified-inbox-clients
+      AUTH_COOKIE_SECURE: "false"
+      SWAGGER_ENABLED: "false"
       NEXT_PUBLIC_API_URL: http://localhost:3001
       EXPO_PUBLIC_API_URL: http://10.0.2.2:3001
       LOG_LEVEL: silent
