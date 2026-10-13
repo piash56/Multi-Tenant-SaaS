@@ -1,12 +1,10 @@
 import { Body, Controller, Get, HttpCode, Inject, Post, Req, Res, UseGuards } from "@nestjs/common";
-import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 import { PrismaService } from "../database/prisma.service.js";
 import { CurrentUser, Public } from "./auth.decorators.js";
 import { AuthService } from "./auth.service.js";
 import type { AuthenticatedPrincipal } from "./auth.types.js";
-// Runtime DTO metadata is required by Nest's ValidationPipe.
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { LoginDto } from "./dto/login.dto.js";
 import { LoginRateLimitGuard } from "./guards.js";
 import { OriginGuard } from "./origin.guard.js";
@@ -24,6 +22,7 @@ export class AuthController {
   @Post("login")
   @HttpCode(200)
   @ApiOperation({ summary: "Authenticate and create a rotating browser session" })
+  @ApiBody({ type: LoginDto })
   @ApiResponse({ status: 200, description: "Session cookies set" })
   @ApiResponse({ status: 401, description: "Invalid email or password" })
   async login(
