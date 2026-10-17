@@ -10,6 +10,9 @@ coverage/
 web-build/
 *.tsbuildinfo
 
+# Keep project documentation locally only
+/docs/
+
 # Environment files (examples remain tracked)
 .env
 .env.*
