@@ -57,7 +57,12 @@ describe("Milestone 4 authentication and tenant isolation", () => {
     orgA = a.id;
     orgB = b.id;
     const moderator = await prisma.user.create({
-      data: { email: moderatorEmail, normalizedEmail: moderatorEmail, passwordHash },
+      data: {
+        email: moderatorEmail,
+        normalizedEmail: moderatorEmail,
+        displayName: "Test Moderator",
+        passwordHash,
+      },
     });
     await prisma.membership.create({
       data: {
@@ -72,6 +77,7 @@ describe("Milestone 4 authentication and tenant isolation", () => {
       data: {
         email: superEmail,
         normalizedEmail: superEmail,
+        displayName: "Test Super Admin",
         passwordHash,
         platformRole: "SUPER_ADMIN",
       },

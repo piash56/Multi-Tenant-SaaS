@@ -35,6 +35,6 @@ import { ProtectedController } from "./protected.controller.js";
     { provide: APP_GUARD, useClass: TenantAuthorizationGuard },
     { provide: APP_GUARD, useClass: PlatformAuthorizationGuard },
   ],
-  exports: [AuthService, AuthorizationService],
+  exports: [AuthService, AuthorizationService, PasswordService],
 })
 export class AuthModule {}

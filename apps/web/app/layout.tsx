@@ -1,26 +1,18 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { AuthProvider } from "../components/auth-provider";
 import "./styles.css";
 
 export const metadata: Metadata = {
-  title: "Unified Inbox SaaS",
-  description: "Multi-tenant unified inbox foundation",
+  title: { default: "Unified Inbox", template: "%s · Unified Inbox" },
+  description: "Secure multi-tenant customer conversation workspace",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en">
       <body>
-        <header className="siteHeader">
-          <Link className="brand" href="/">
-            Unified Inbox
-          </Link>
-          <nav aria-label="Primary navigation">
-            <Link href="/status">System status</Link>
-          </nav>
-        </header>
-        <main className="pageShell">{children}</main>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

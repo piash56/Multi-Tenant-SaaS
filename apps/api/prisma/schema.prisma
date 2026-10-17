@@ -148,16 +148,17 @@ enum SubscriptionStatus {
 }
 
 model User {
-  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email           String
-  normalizedEmail String       @unique @map("normalized_email")
-  passwordHash    String?      @map("password_hash")
-  status          UserStatus   @default(ACTIVE)
-  platformRole    PlatformRole @default(USER) @map("platform_role")
-  emailVerifiedAt DateTime?    @map("email_verified_at") @db.Timestamptz(6)
-  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt       DateTime?    @map("deleted_at") @db.Timestamptz(6)
+  normalizedEmail String        @unique @map("normalized_email")
+  displayName     String        @map("display_name")
+  passwordHash    String?       @map("password_hash")
+  status          UserStatus    @default(ACTIVE)
+  platformRole    PlatformRole  @default(USER) @map("platform_role")
+  emailVerifiedAt DateTime?     @map("email_verified_at") @db.Timestamptz(6)
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime?     @map("deleted_at") @db.Timestamptz(6)
   memberships     Membership[]
   invitations     Invitation[]
   auditLogs       AuditLog[]
@@ -168,20 +169,20 @@ model User {
 }
 
 model AuthSession {
-  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId               String             @map("user_id") @db.Uuid
-  familyId             String             @map("family_id") @db.Uuid
-  accessVersion        Int                @default(1) @map("access_version")
-  authenticatedAt      DateTime           @default(now()) @map("authenticated_at") @db.Timestamptz(6)
-  lastUsedAt           DateTime           @default(now()) @map("last_used_at") @db.Timestamptz(6)
-  expiresAt            DateTime           @map("expires_at") @db.Timestamptz(6)
-  revokedAt            DateTime?          @map("revoked_at") @db.Timestamptz(6)
-  revokeReason         String?            @map("revoke_reason")
-  userAgent            String?            @map("user_agent")
-  ipAddress            String?            @map("ip_address") @db.Inet
-  createdAt            DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  user                 User               @relation(fields: [userId], references: [id], onDelete: Restrict)
-  refreshTokens        AuthRefreshToken[]
+  id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String             @map("user_id") @db.Uuid
+  familyId        String             @map("family_id") @db.Uuid
+  accessVersion   Int                @default(1) @map("access_version")
+  authenticatedAt DateTime           @default(now()) @map("authenticated_at") @db.Timestamptz(6)
+  lastUsedAt      DateTime           @default(now()) @map("last_used_at") @db.Timestamptz(6)
+  expiresAt       DateTime           @map("expires_at") @db.Timestamptz(6)
+  revokedAt       DateTime?          @map("revoked_at") @db.Timestamptz(6)
+  revokeReason    String?            @map("revoke_reason")
+  userAgent       String?            @map("user_agent")
+  ipAddress       String?            @map("ip_address") @db.Inet
+  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  user            User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+  refreshTokens   AuthRefreshToken[]
 
   @@unique([familyId])
   @@index([userId, revokedAt, expiresAt])
@@ -189,16 +190,16 @@ model AuthSession {
 }
 
 model AuthRefreshToken {
-  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  sessionId   String      @map("session_id") @db.Uuid
-  tokenHash   String      @unique @map("token_hash")
-  sequence    Int
-  expiresAt   DateTime    @map("expires_at") @db.Timestamptz(6)
-  usedAt      DateTime?   @map("used_at") @db.Timestamptz(6)
-  revokedAt   DateTime?   @map("revoked_at") @db.Timestamptz(6)
-  replacedById String?    @map("replaced_by_id") @db.Uuid
-  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-  session     AuthSession @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionId    String      @map("session_id") @db.Uuid
+  tokenHash    String      @unique @map("token_hash")
+  sequence     Int
+  expiresAt    DateTime    @map("expires_at") @db.Timestamptz(6)
+  usedAt       DateTime?   @map("used_at") @db.Timestamptz(6)
+  revokedAt    DateTime?   @map("revoked_at") @db.Timestamptz(6)
+  replacedById String?     @map("replaced_by_id") @db.Uuid
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  session      AuthSession @relation(fields: [sessionId], references: [id], onDelete: Restrict)
 
   @@unique([sessionId, sequence])
   @@index([sessionId, revokedAt, expiresAt])
@@ -228,6 +229,8 @@ model Organization {
   notifications      Notification[]
   subscriptions      Subscription[]
   idempotencyRecords IdempotencyRecord[]
+  teams              Team[]
+  teamMemberships    TeamMembership[]
 
   @@index([status])
   @@map("organizations")
@@ -259,12 +262,46 @@ model Membership {
   assignedComments              SocialComment[]               @relation("CurrentCommentAssignee")
   authoredCommentReplies        SocialCommentReply[]          @relation("CommentReplyAuthor")
   commentReplyAssigneeSnapshots SocialCommentReply[]          @relation("CommentReplyAssignee")
+  teamMemberships               TeamMembership[]
 
   @@unique([organizationId, userId])
   @@unique([organizationId, id])
   @@index([userId, status])
   @@index([organizationId, role, status])
   @@map("memberships")
+}
+
+model Team {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  name           String
+  normalizedName String           @map("normalized_name")
+  description    String?
+  isActive       Boolean          @default(true) @map("is_active")
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  memberships    TeamMembership[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, normalizedName])
+  @@index([organizationId, isActive, name])
+  @@map("teams")
+}
+
+model TeamMembership {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  teamId         String       @map("team_id") @db.Uuid
+  membershipId   String       @map("membership_id") @db.Uuid
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  team           Team         @relation(fields: [organizationId, teamId], references: [organizationId, id], onDelete: Restrict)
+  membership     Membership   @relation(fields: [organizationId, membershipId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([teamId, membershipId])
+  @@index([organizationId, membershipId])
+  @@map("team_memberships")
 }
 
 model Invitation {

@@ -19,8 +19,12 @@ try {
   });
   const user = await prisma.user.upsert({
     where: { normalizedEmail: "moderator@example.test" },
-    update: { email: "moderator@example.test" },
-    create: { email: "moderator@example.test", normalizedEmail: "moderator@example.test" },
+    update: { email: "moderator@example.test", displayName: "Demo Moderator" },
+    create: {
+      email: "moderator@example.test",
+      normalizedEmail: "moderator@example.test",
+      displayName: "Demo Moderator",
+    },
   });
   const membership = await prisma.membership.upsert({
     where: { organizationId_userId: { organizationId: organization.id, userId: user.id } },

@@ -7,6 +7,7 @@ import { DatabaseModule } from "./database/database.module.js";
 import { HealthModule } from "./health/health.module.js";
 import { RealtimeModule } from "./realtime/realtime.module.js";
 import { RedisModule } from "./redis/redis.module.js";
+import { AdminModule } from "./admin/admin.module.js";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { RedisModule } from "./redis/redis.module.js";
     DatabaseModule,
     RedisModule,
     AuthModule,
+    AdminModule,
     HealthModule,
     RealtimeModule,
   ],

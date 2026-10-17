@@ -48,6 +48,11 @@ SecureStore. No token belongs in localStorage, AsyncStorage, a URL, or a client 
 | `GET /platform/security-context`                                   | Explicit Super Admin only               | Demonstrate isolated platform authorization          |
 | `GET /health/live`, `GET /health/ready`                            | Public                                  | Minimal monitoring endpoints                         |
 
+Milestone 5 adds dedicated administration endpoints under `/platform/*` and
+`/organizations/:organizationId/*`. Their complete inventory and role matrix are documented in
+`docs/milestone-5-completion-report.md`. Platform routes never infer tenant membership; every
+organization route continues through the active-membership tenant guard.
+
 Swagger is available at `/docs` only when `SWAGGER_ENABLED=true`. Keep it disabled in production
 unless deliberately protected at the network/application edge. The OpenAPI document describes the
 cookie and bearer access schemes; it never contains credentials.
@@ -124,12 +129,14 @@ the resulting value into source control, chat, logs, screenshots, or client envi
 ## Local setup and testing
 
 1. Copy `apps/api/.env.example` to `apps/api/.env` and replace `AUTH_JWT_SECRET`.
+   Keep `apps/web/.env.local` set to `NEXT_PUBLIC_API_URL=/api`; the Next.js development proxy
+   keeps browser session cookies same-origin while forwarding API requests to port 3001.
 2. Start PostgreSQL and Redis with `pnpm.cmd infra:up`.
 3. Run `pnpm.cmd db:migrate` and `pnpm.cmd db:migrate:status`.
-4. Provision an organization user:
+4. Provision a local organization user with a generated password:
 
    ```powershell
-   pnpm.cmd --filter @saas/api auth:provision -- --email user@example.test --password "a-strong-local-password" --organization-id <uuid> --role MODERATOR --display-name "Local Moderator"
+   pnpm.cmd --filter @saas/api auth:provision --email user@example.test --display-name "Local Moderator" --generate-password --organization-id <uuid> --role MODERATOR --local-development
    ```
 
 5. Start the API with `pnpm.cmd dev:api`, open `/docs`, and call login with credentials included.
@@ -141,8 +148,25 @@ the resulting value into source control, chat, logs, screenshots, or client envi
 Super Admin provisioning is intentionally separate and auditable:
 
 ```powershell
-pnpm.cmd --filter @saas/api auth:provision -- --email admin@example.test --password "a-strong-local-password" --super-admin --approved-by "owner-change-reference"
+pnpm.cmd --filter @saas/api auth:provision --email admin@example.test --display-name "Local Super Admin" --generate-password --super-admin --approved-by "owner-change-reference" --local-development
 ```
 
-Use synthetic local accounts only. Do not pass passwords in shared shell history or CI logs; a
-future operator workflow should use protected secret input rather than a command argument.
+`--generate-password` creates a different cryptographically random password for each invocation and
+writes it beneath the ignored `.local/credentials/` directory. The command prints only the file
+path, never the password or hash. Open the named file locally when ready to sign in, keep it out of
+screenshots and chat, and delete it after transferring the password to a local password manager.
+`--password-file` is available when an operator supplies a secret through a protected file. Avoid
+`--password`, because process arguments and shell history can expose it.
+
+Provisioning refuses to modify an existing email and uses create-only database operations, so a
+repeat cannot silently reset a password or elevate a role. The `--local-development` safeguard
+rejects production and any database other than `saas_dev`. Super Admin provisioning additionally
+requires `--approved-by`; it creates a platform role without an organization membership.
+
+Before production, disable temporary accounts rather than deleting audit history: revoke all rows
+in `auth_sessions` for the user (and their associated refresh tokens), set memberships to `REMOVED`
+where applicable, and set the user status to `DISABLED`, all in one reviewed transaction. Refresh
+tokens are tied to their session, so revoking every active session immediately invalidates refresh
+and access-session checks. Permanent deletion should use a separately reviewed retention workflow
+that accounts for restrictive foreign keys and preserved audit records; do not delete these users
+ad hoc from the database.

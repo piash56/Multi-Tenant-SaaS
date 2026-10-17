@@ -2,19 +2,31 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <section className="hero">
-      <p className="eyebrow">Milestone 2 foundation</p>
-      <h1>A secure base for every customer conversation.</h1>
-      <p className="lede">
-        The web, API, worker, and Android foundations share typed contracts while PostgreSQL remains
-        the future source of truth.
-      </p>
-      <div className="actions">
-        <Link className="primaryAction" href="/status">
-          Check API status
+    <main className="marketingShell">
+      <nav className="marketingNav">
+        <Link className="wordmark" href="/">
+          Unified Inbox
         </Link>
-        <span className="muted">Business features begin in later approved milestones.</span>
-      </div>
-    </section>
+        <Link className="button buttonSecondary" href="/login">
+          Sign in
+        </Link>
+      </nav>
+      <section className="hero">
+        <p className="eyebrow">One workspace. Every customer conversation.</p>
+        <h1>Support teams move faster when context stays together.</h1>
+        <p className="lede">
+          A secure multi-tenant workspace for managing customer conversations across supported
+          social channels.
+        </p>
+        <div className="actions">
+          <Link className="button buttonPrimary" href="/login">
+            Open your workspace
+          </Link>
+          <Link className="textLink" href="/status">
+            View system status
+          </Link>
+        </div>
+      </section>
+    </main>
   );
 }

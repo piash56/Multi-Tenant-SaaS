@@ -38,8 +38,9 @@ async function createMembership(organizationId: string, label: string) {
   const membershipId = randomUUID();
   const email = `${label}-${userId}@example.test`;
   await query(
-    `INSERT INTO users (id, email, normalized_email, updated_at) VALUES ($1, $2, $2, now())`,
-    [userId, email],
+    `INSERT INTO users (id, email, normalized_email, display_name, updated_at)
+     VALUES ($1, $2, $2, $3, now())`,
+    [userId, email, label],
   );
   await query(
     `INSERT INTO memberships (id, organization_id, user_id, role, status, display_name, updated_at)
@@ -282,5 +283,50 @@ describe("Milestone 3 database", () => {
     const orgId = await createOrganization("Referential");
     await createMembership(orgId, "Member");
     await expectSqlState(() => query(`DELETE FROM organizations WHERE id = $1`, [orgId]), "23001");
+  });
+
+  it("enforces tenant-safe and duplicate-free team membership", async () => {
+    const tenantA = await createOrganization("TeamsA");
+    const tenantB = await createOrganization("TeamsB");
+    const memberA = await createMembership(tenantA, "Team member A");
+    const memberB = await createMembership(tenantB, "Team member B");
+    const teamId = randomUUID();
+    await query(
+      `INSERT INTO teams (id, organization_id, name, normalized_name, updated_at)
+       VALUES ($1, $2, 'Support', 'support', now())`,
+      [teamId, tenantA],
+    );
+    await expectSqlState(
+      () =>
+        query(
+          `INSERT INTO teams (organization_id, name, normalized_name, updated_at)
+           VALUES ($1, 'support', 'support', now())`,
+          [tenantA],
+        ),
+      "23505",
+    );
+    await query(
+      `INSERT INTO team_memberships (organization_id, team_id, membership_id)
+       VALUES ($1, $2, $3)`,
+      [tenantA, teamId, memberA.membershipId],
+    );
+    await expectSqlState(
+      () =>
+        query(
+          `INSERT INTO team_memberships (organization_id, team_id, membership_id)
+           VALUES ($1, $2, $3)`,
+          [tenantA, teamId, memberA.membershipId],
+        ),
+      "23505",
+    );
+    await expectSqlState(
+      () =>
+        query(
+          `INSERT INTO team_memberships (organization_id, team_id, membership_id)
+           VALUES ($1, $2, $3)`,
+          [tenantA, teamId, memberB.membershipId],
+        ),
+      "23503",
+    );
   });
 });

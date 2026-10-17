@@ -73,6 +73,7 @@ export class AuthController {
       select: {
         id: true,
         email: true,
+        displayName: true,
         platformRole: true,
         memberships: {
           where: { status: "ACTIVE", organization: { status: "ACTIVE" } },
