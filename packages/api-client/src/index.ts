@@ -17,6 +17,7 @@ import type {
   TeamSummary,
   UserStatus,
   UserSummary,
+  AnalyticsResponse,
 } from "@saas/shared-types";
 import {
   authResponseSchema,
@@ -302,6 +303,32 @@ export class ApiClient {
     return this.#request(`/organizations/${encodeURIComponent(id)}/integrations`) as Promise<{
       providers: string[];
       accounts: IntegrationAccountSummary[];
+    }>;
+  }
+
+  getAnalytics(id: string, query = ""): Promise<AnalyticsResponse> {
+    return this.#request(
+      `/organizations/${encodeURIComponent(id)}/analytics${query ? `?${query}` : ""}`,
+    ) as Promise<AnalyticsResponse>;
+  }
+
+  getModeratorAnalytics(
+    id: string,
+    membershipId: string,
+    query = "",
+  ): Promise<{
+    range: AnalyticsResponse["range"];
+    scope: AnalyticsResponse["scope"];
+    definitionsVersion: number;
+    moderator: AnalyticsResponse["moderators"][number];
+  }> {
+    return this.#request(
+      `/organizations/${encodeURIComponent(id)}/analytics/moderators/${encodeURIComponent(membershipId)}${query ? `?${query}` : ""}`,
+    ) as Promise<{
+      range: AnalyticsResponse["range"];
+      scope: AnalyticsResponse["scope"];
+      definitionsVersion: number;
+      moderator: AnalyticsResponse["moderators"][number];
     }>;
   }
 

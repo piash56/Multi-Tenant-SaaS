@@ -8,6 +8,7 @@ import { HealthModule } from "./health/health.module.js";
 import { RealtimeModule } from "./realtime/realtime.module.js";
 import { RedisModule } from "./redis/redis.module.js";
 import { AdminModule } from "./admin/admin.module.js";
+import { AnalyticsModule } from "./analytics/analytics.module.js";
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AdminModule } from "./admin/admin.module.js";
     RedisModule,
     AuthModule,
     AdminModule,
+    AnalyticsModule,
     HealthModule,
     RealtimeModule,
   ],

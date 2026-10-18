@@ -459,6 +459,8 @@ model Message {
   @@unique([organizationId, clientIdempotencyKey])
   @@unique([organizationId, id])
   @@index([organizationId, conversationId, createdAt, id])
+  @@index([organizationId, authorMembershipId, createdAt])
+  @@index([organizationId, direction, origin, createdAt])
   @@map("messages")
 }
 
@@ -512,6 +514,7 @@ model ConversationAssignmentEvent {
 
   @@index([organizationId, conversationId, occurredAt])
   @@index([organizationId, toMembershipId, occurredAt])
+  @@index([organizationId, fromMembershipId, occurredAt])
   @@map("conversation_assignment_events")
 }
 
@@ -534,6 +537,7 @@ model ConversationResolutionEvent {
 
   @@index([organizationId, conversationId, occurredAt])
   @@index([organizationId, completionCreditMembershipId, occurredAt])
+  @@index([organizationId, actorMembershipId, action, occurredAt])
   @@map("conversation_resolution_events")
 }
 

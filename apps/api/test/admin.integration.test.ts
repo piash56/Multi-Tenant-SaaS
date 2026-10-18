@@ -29,6 +29,7 @@ describe("Milestone 5 administration", () => {
   let orgA: string;
   let orgB: string;
   let adminMembership: string;
+  let supervisorMembership: string;
   let moderatorMembership: string;
   let targetUserId: string;
 
@@ -104,7 +105,7 @@ describe("Milestone 5 administration", () => {
     ]);
     void superUser;
     targetUserId = target.id;
-    const [adminMember, , moderatorMember] = await Promise.all([
+    const [adminMember, supervisorMember, moderatorMember] = await Promise.all([
       prisma.membership.create({
         data: {
           organizationId: orgA,
@@ -134,6 +135,7 @@ describe("Milestone 5 administration", () => {
       }),
     ]);
     adminMembership = adminMember.id;
+    supervisorMembership = supervisorMember.id;
     moderatorMembership = moderatorMember.id;
   }, 30_000);
 
@@ -402,5 +404,67 @@ describe("Milestone 5 administration", () => {
       "WHATSAPP_BUSINESS",
     ]);
     expect(JSON.stringify(integrations.body)).not.toContain("encryptedToken");
+  });
+
+  it("enforces role-scoped analytics and denies implicit Super Admin tenant access", async () => {
+    await prisma.membership.update({
+      where: { id: moderatorMembership },
+      data: { role: "MODERATOR" },
+    });
+    const activeTeam = await prisma.team.create({
+      data: {
+        organizationId: orgA,
+        name: `Analytics Team ${suffix}`,
+        normalizedName: `analytics team ${suffix}`,
+      },
+    });
+    await prisma.teamMembership.createMany({
+      data: [
+        {
+          organizationId: orgA,
+          teamId: activeTeam.id,
+          membershipId: supervisorMembership,
+        },
+        {
+          organizationId: orgA,
+          teamId: activeTeam.id,
+          membershipId: moderatorMembership,
+        },
+      ],
+    });
+    const adminSession = await login(emails.admin);
+    const adminAnalytics = await adminSession.agent
+      .get(`/organizations/${orgA}/analytics?preset=last7days`)
+      .expect(200);
+    expect(adminAnalytics.body.scope.kind).toBe("organization");
+    await adminSession.agent.get(`/organizations/${orgB}/analytics`).expect(404);
+
+    const supervisorSession = await login(emails.supervisor);
+    const supervisorAnalytics = await supervisorSession.agent
+      .get(`/organizations/${orgA}/analytics`)
+      .expect(200);
+    expect(supervisorAnalytics.body.scope.kind).toBe("teams");
+    expect(supervisorAnalytics.body.scope.teamIds).toEqual([activeTeam.id]);
+    expect(
+      supervisorAnalytics.body.moderators.map(
+        (item: { membershipId: string }) => item.membershipId,
+      ),
+    ).toEqual(expect.arrayContaining([supervisorMembership, moderatorMembership]));
+    await supervisorSession.agent.get(`/organizations/${orgB}/analytics`).expect(404);
+
+    const moderatorSession = await login(emails.moderator);
+    const moderatorAnalytics = await moderatorSession.agent
+      .get(`/organizations/${orgA}/analytics`)
+      .expect(200);
+    expect(moderatorAnalytics.body.scope.kind).toBe("self");
+    expect(moderatorAnalytics.body.moderators).toHaveLength(1);
+    expect(moderatorAnalytics.body.moderators[0].membershipId).toBe(moderatorMembership);
+    await moderatorSession.agent.get(`/organizations/${orgB}/analytics`).expect(404);
+    await moderatorSession.agent
+      .get(`/organizations/${orgA}/analytics/moderators/${adminMembership}`)
+      .expect(404);
+
+    const superSession = await login(emails.super);
+    await superSession.agent.get(`/organizations/${orgA}/analytics`).expect(404);
   });
 });

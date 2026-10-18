@@ -170,3 +170,50 @@ export interface PageResponse<T> {
   items: T[];
   pagination: Pagination;
 }
+
+export interface AnalyticsMetric {
+  value: number | null;
+  status: "available" | "unavailable";
+  sampleSize?: number;
+  unit?: "milliseconds";
+}
+
+export interface ModeratorPerformance {
+  membershipId: string;
+  displayName: string;
+  role: MembershipRole;
+  conversationsAssigned: AnalyticsMetric;
+  conversationsReassigned: AnalyticsMetric;
+  conversationsReassignedAway: AnalyticsMetric;
+  currentPendingWorkload: AnalyticsMetric;
+  repliesAuthored: AnalyticsMetric;
+  conversationsResolved: AnalyticsMetric;
+  conversationsReopened: AnalyticsMetric;
+  assistedConversations: AnalyticsMetric;
+  firstResponseTime: AnalyticsMetric;
+  averageResponseTime: AnalyticsMetric;
+  resolutionTime: AnalyticsMetric;
+  ranks: { replies: number | null; resolved: number | null; responseTime: number | null };
+}
+
+export interface AnalyticsResponse {
+  range: { preset: string; from: string; toExclusive: string; timezone: string };
+  scope: { kind: "self" | "teams" | "organization"; teamIds: string[] };
+  definitionsVersion: number;
+  organization: Omit<ModeratorPerformance, "membershipId" | "displayName" | "role" | "ranks">;
+  moderators: ModeratorPerformance[];
+  leaderboard: Array<{
+    membershipId: string;
+    displayName: string;
+    repliesAuthored: number | null;
+    conversationsResolved: number | null;
+    averageResponseTime: AnalyticsMetric;
+    ranks: ModeratorPerformance["ranks"];
+  }>;
+  teams: Array<{
+    id: string;
+    name: string;
+    members: number;
+    metrics: AnalyticsResponse["organization"];
+  }>;
+}

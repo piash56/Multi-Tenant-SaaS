@@ -78,8 +78,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
         <div className="phaseNote">
-          <strong>Milestone 5</strong>
-          <span>Owner workspace</span>
+          <strong>Milestone 6</strong>
+          <span>Analytics &amp; leaderboard</span>
         </div>
       </aside>
       {menuOpen && (
